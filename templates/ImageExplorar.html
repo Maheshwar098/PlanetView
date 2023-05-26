@@ -1,0 +1,238 @@
+{% extends "base.html" %} {% block content %}
+<form action="/getImage" method="get" class="search-bar">
+  <input
+    type="text"
+    placeholder="search the location"
+    id="searchid"
+    autocomplete="off"
+    name="location"
+  />
+  <!-- <input type="mail" id="searchid"> -->
+
+  <button type="submit" id="abutton">
+    <i class="fa-solid fa-magnifying-glass" id="search-icon"></i>
+  </button>
+  <!-- <img class="search" src="search.png"> -->
+</form>
+<div class="aflex">
+  <div class="acontainer1">
+    <img id="rgbImg" src="{{rgbimg}}" />
+  </div>
+  <div class="acontainer">
+    <img id="segImg" src="{{segmentedimg}}" />
+  </div>
+  <div class="aflex1">
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #441E53;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #483D72;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #433E85;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #38577D;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #2D6F8E;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #237F8B;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #1F997B;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #2AAB67;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #51C43D;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #85D54A;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+    <i
+      class="fa-solid fa-square fa-2x my-1"
+      style="
+        color: #C2DE23;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: #ffffff;
+      "
+    ></i>
+  </div>
+  <div class="aflex2">
+    <h3 id="h3-1" style="color: white">Unmarked</h3>
+    <h3 style="color: white">Water</h3>
+    <h3 style="color: white">Trees</h3>
+    <h3 style="color: white">Grass</h3>
+    <h3 style="color: white">Flooded Vegetatiom</h3>
+    <h3 style="color: white">Crops</h3>
+    <h3 style="color: white">Scrub</h3>
+    <h3 style="color: white">Built Area</h3>
+    <h3 style="color: white">Bare Ground</h3>
+    <h3 style="color: white">Snow/Ice</h3>
+    <h3 style="color: white">Cloud</h3>
+  </div>
+  <script src="webpage.js"></script>
+</div>
+<form method="POST" action="/upload" enctype="multipart/form-data">
+  <input type="file" name="image">
+  <input type="submit" value="Upload">
+</form>
+<script>
+  // Ankita's js
+  let i = 0;
+  let placeholder = "";
+  const txt = "Search a location";
+  const speed = 120;
+
+  function type() {
+    placeholder += txt.charAt(i);
+    document
+      .getElementById("searchid")
+      .setAttribute("placeholder", placeholder);
+    i++;
+    setTimeout(type, speed);
+  }
+
+  type();
+
+  let scale = 1;
+  let posX = 0;
+  let posY = 0;
+
+  // Reference to the image element
+  const image = document.getElementById("segImg");
+
+  // Event listeners for zoom in/out
+  image.addEventListener("wheel", function (event) {
+    event.preventDefault();
+
+    // Adjust the zoom level based on the scroll direction
+    scale += event.deltaY * -0.01;
+
+    // Limit the minimum and maximum zoom level
+    scale = Math.min(Math.max(0.125, scale), 4);
+
+    // Apply the zoom transformation
+    image.style.transform = `scale(${scale})`;
+  });
+
+  // Event listeners for panning
+  image.addEventListener("mousedown", function (event) {
+    event.preventDefault();
+    image.style.cursor = "grabbing";
+
+    // Get the initial position of the mouse
+    const startX = event.clientX - posX;
+    const startY = event.clientY - posY;
+
+    // Update the position of the image when dragging
+    document.addEventListener("mousemove", moveImage);
+
+    // Remove the listeners when mouse button is released
+    document.addEventListener("mouseup", function () {
+      image.style.cursor = "grab";
+      document.removeEventListener("mousemove", moveImage);
+    });
+
+    // Function to move the image based on mouse position
+    function moveImage(event) {
+      posY = event.clientY - startY;
+      posX = event.clientX - startX;
+      image.style.transform = `scale(${scale}) translate(${posX}px, ${posY}px)`;
+    }
+  });
+</script>
+<script>
+  function animateImages() {
+    const rgbImagesString = "{{rgbImages}}".replaceAll("&#39;", '"');
+    const rgbImagesArray = JSON.parse(rgbImagesString);
+
+    const segImagesString = "{{segImages}}".replaceAll("&#39;", '"');
+    const segImagesArray = JSON.parse(segImagesString);
+
+    console.log(rgbImagesArray);
+    var rgbImgLocation = document.getElementById("rgbImg");
+    var segImgLocation = document.getElementById("segImg");
+
+    var i = 0;
+
+    function delayedLoop() {
+      rgbImgLocation.src = rgbImagesArray[i];
+      segImgLocation.src = segImagesArray[i];
+      i++;
+
+      if (i < 1) {
+        setTimeout(delayedLoop, 900);
+      }
+    }
+
+    delayedLoop();
+  }
+  window.onload = animateImages();
+</script>
+
+{% endblock %}

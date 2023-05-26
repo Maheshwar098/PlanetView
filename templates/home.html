@@ -1,0 +1,176 @@
+{% extends "base.html" %} {% block content %}
+<div class="flex">
+  <div class="title">
+    <h1 class="heading">Realtime Landcover Tracking</h1>
+    <h4 class="about">Satellite Image Segmentation</h4>
+    <button type="button" class="btn1">
+      <i class="fa-solid fa-location-dot"></i> Explore the Map
+    </button>
+    <button type="button" class="btn1">
+      <i class="fa-solid fa-chart-simple"></i> Analyze the Data
+    </button>
+    <div class="container1">
+      <div class="card-transparent intro-card">
+        <div class="card-body">
+          <h4 class="view">
+            Planet View provides 11 channel segmented images of any location on
+            Earth and further offers assistance with analysis of physical
+            parameters of the region.
+          </h4>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="container">
+    <canvas></canvas>
+  </div>
+
+</div>
+
+<!-- Bootstrap Carousel -->
+<div class="Carousel">
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <div id="carouselExampleCaptions" class="carousel slide carousel-fade">
+        <div class="carousel-indicators">
+          <button
+            type="button"
+            data-bs-target="#carouselExampleCaptions"
+            data-bs-slide-to="0"
+            class="active"
+            aria-current="true"
+            aria-label="Slide 1"
+          ></button>
+          <button
+            type="button"
+            data-bs-target="#carouselExampleCaptions"
+            data-bs-slide-to="1"
+            aria-label="Slide 2"
+          ></button>
+          <button
+            type="button"
+            data-bs-target="#carouselExampleCaptions"
+            data-bs-slide-to="2"
+            aria-label="Slide 3"
+          ></button>
+        </div>
+
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <img
+              src="static/Images/UtilityImages/Image1.jpg"
+              class="responsive images d-block w-100"
+              alt="satellite-img"
+            />
+            <div class="carousel-caption d-none d-md-block"></div>
+          </div>
+          <div class="carousel-item">
+            <img
+              src="static/Images/UtilityImages/Image2.jpg"
+              class="responsive images d-block w-100"
+              alt="global-img"
+            />
+            <div class="carousel-caption d-none d-md-block"></div>
+          </div>
+          <div class="carousel-item">
+            <img
+              src="static/Images/UtilityImages/Image3.png"
+              class="responsive images d-block w-100"
+              alt="climate-img"
+            />
+            <div class="carousel-caption d-none d-md-block"></div>
+          </div>
+        </div>
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#carouselExampleCaptions"
+          data-bs-slide="prev"
+        >
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#carouselExampleCaptions"
+          data-bs-slide="next"
+        >
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<hr />
+
+<!-- Bootstrap Cards -->
+<div class="essentials">
+  <div class="information">
+    <h2>Features of the model</h2>
+    <div class="row">
+      <div class="features col-lg-4 d-flex align-items-stretch">
+        <div class="intro-card">
+          <img
+            src="static/Images/UtilityImages/satellitephoto.webp"
+            class="card-img-top"
+            id="image1"
+            alt="..."
+          />
+          
+          <div class="cardHeader header disabled">
+            <h3 class="features-title">High Spacial Resolution</h3>
+          </div>
+        
+          <div class="card-body">
+            <p class="card-text">
+              Satellite images offer detailed information about Earth's surface
+              due to their high spatial resolution, enabling the detection of
+              fine-grained features and objects.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="features col-lg-4 d-flex align-items-stretch">
+        <div class="intro-card">
+          <img src="static/Images/UtilityImages/DANN.jpeg" class="card-img-top" alt="..." />
+          
+          <div class="cardHeader header disabled">
+            <h3 class="features-title">Classification Algorithms</h3>
+          </div>
+        
+          <div class="card-body">
+            <p class="card-text">
+              Various machine learning algorithms can be employed for satellite
+              image segmentation, including traditional approaches like
+              clustering, as well as more advanced techniques like CNNs can also
+              be used.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="features col-lg-4 d-flex align-items-stretch">
+        <div class="intro-card">
+          <img src="static/Images/UtilityImages/convnet.jpeg" class="card-img-top" alt="..." />
+          
+          <div class="cardHeader header disabled">
+            <h3 class="features-title">Accuracy Assessment</h3>
+          </div>
+          
+          <div class="card-body">
+            <p class="card-text">
+              Validating the accuracy of segmented results is crucial. Metrics
+              like overall accuracy, precision, recall, and F1 score are
+              commonly used to evaluate the performance of segmentation
+              algorithms.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

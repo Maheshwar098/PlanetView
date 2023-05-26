@@ -163,10 +163,10 @@ hr{
 }
 
 .about{
-  /* text-decoration: none; */
-  /* font-weight:normal;
+  text-decoration: none;
+  font-weight:normal;
   padding-top:10px;
-  margin-left:13px; */
+  margin-left:13px;
 }
 
 
@@ -526,7 +526,7 @@ h3{
     padding-top: 10px;
   }
 
-  .about{
+  .about1{
     margin-left: 43%;
     margin-top: 50px;
     border-radius: 30px;

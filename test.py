@@ -169,9 +169,9 @@ def getCharts():
 
 @app.route("/getImage", methods=['GET'])
 def getImage():
-    # location = request.args.get('location')
-    # (lattitude, longitude) = getCoordinateFromLocation(location)
-    # inputImgs = getS2Image((lattitude,longitude),5100)
+    location = request.args.get('location')
+    (lattitude, longitude) = getCoordinateFromLocation(location)
+    inputImgs = getS2Image((lattitude,longitude),5100)
 
     imgDir = './static/Images/ModelImages/RGBImages'
     labelDir = './static/Images/ModelImages/Labels'
@@ -240,9 +240,27 @@ def getImage():
 def upload():
     if request.method == 'POST':
         image = request.files['image']
-        image.save('./static/uploads/' + image.filename)
-        return 'Image uploaded successfully'
-    return render_template('ImageExplorar.html')
+        image.save('./static/uploads/rgbimg.jpg')
+        reconstructed_model = keras.models.load_model("./Model/model")
+        inputImg = np.asarray(Image.open('./static/uploads/rgbimg.jpg'))  
+        pred = reconstructed_model.predict(inputImg.reshape(1,512, 512, 3)).reshape(512,512,11)
+        pred = np.array(np.argmax(pred, axis = 2))
+        num_colors = 11
+
+        # Get the "viridis" colormap
+        colormap = plt.cm.get_cmap('viridis')
+
+        # Generate a list of colors from the colormap
+        colors = [colormap(i / num_colors) for i in range(num_colors)]
+    
+
+        # Create a custom colormap with the specified colors
+        cmap = mcolors.ListedColormap(colors)
+
+        
+        matplotlib.image.imsave('./static/uploads/segmimg.jpg', pred, cmap=cmap)
+        
+    return render_template('ImageExplorar.html',rgbimg="./static/uploads/rgbimg.jpg", segmentedimg = "./static/uploads/segmimg.jpg")
 
 @app.route("/assets/satellite/scene.gltf", methods = ['GET'])
 def getsatelliteScene():

@@ -137,10 +137,13 @@
   </div>
   <script src="webpage.js"></script>
 </div>
-<form method="POST" action="/upload" enctype="multipart/form-data">
-  <input type="file" name="image">
-  <input type="submit" value="Upload">
-</form>
+<div class=" uploadimg">
+  <form method="POST" action="/upload" enctype="multipart/form-data">
+    <input type="file" name="image" class="uploadbtn">
+    <input type="submit" value="Upload" class="uploadbtn">
+  </form>
+</div>
+
 <script>
   // Ankita's js
   let i = 0;

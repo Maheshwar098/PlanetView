@@ -169,67 +169,67 @@ def getCharts():
 
 @app.route("/getImage", methods=['GET'])
 def getImage():
-    location = request.args.get('location')
-    (lattitude, longitude) = getCoordinateFromLocation(location)
-    inputImgs = getS2Image((lattitude,longitude),5100)
+    # location = request.args.get('location')
+    # (lattitude, longitude) = getCoordinateFromLocation(location)
+    # inputImgs = getS2Image((lattitude,longitude),5100)
 
     imgDir = './static/Images/ModelImages/RGBImages'
     labelDir = './static/Images/ModelImages/Labels'
     imgFiles = os.listdir(imgDir)
     lblFiles = os.listdir(labelDir)
 
-    pixelIntensities = []
-    reconstructed_model = keras.models.load_model("./Model/model")
+    # pixelIntensities = []
+    # reconstructed_model = keras.models.load_model("./Model/model")
 
-    for img in imgFiles :  
-        inputImg = np.asarray(Image.open(imgDir+'/'+img))  
-        pred = reconstructed_model.predict(inputImg.reshape(1,512, 512, 3)).reshape(512,512,11)
-        pred = np.array(np.argmax(pred, axis = 2))
-        pixelCount = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0}
-        for i in range (512) : 
-            for j in range (512) : 
-                pixelCount[pred[i,j]] = pixelCount[pred[i,j]] + 1
-        pixelIntensities.append(pixelCount)
+    # for img in imgFiles :  
+    #     inputImg = np.asarray(Image.open(imgDir+'/'+img))  
+    #     pred = reconstructed_model.predict(inputImg.reshape(1,512, 512, 3)).reshape(512,512,11)
+    #     pred = np.array(np.argmax(pred, axis = 2))
+    #     pixelCount = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0}
+    #     for i in range (512) : 
+    #         for j in range (512) : 
+    #             pixelCount[pred[i,j]] = pixelCount[pred[i,j]] + 1
+    #     pixelIntensities.append(pixelCount)
 
-        unique_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    #     unique_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-        num_colors = 11
+    #     num_colors = 11
 
-        # Get the "viridis" colormap
-        colormap = plt.cm.get_cmap('viridis')
+    #     # Get the "viridis" colormap
+    #     colormap = plt.cm.get_cmap('viridis')
 
-        # Generate a list of colors from the colormap
-        colors = [colormap(i / num_colors) for i in range(num_colors)]
+    #     # Generate a list of colors from the colormap
+    #     colors = [colormap(i / num_colors) for i in range(num_colors)]
     
 
-        # Create a custom colormap with the specified colors
-        cmap = mcolors.ListedColormap(colors)
+    #     # Create a custom colormap with the specified colors
+    #     cmap = mcolors.ListedColormap(colors)
 
         
-        matplotlib.image.imsave(labelDir+'/Label_'+img[-5:], pred, cmap=cmap)   
+    #     matplotlib.image.imsave(labelDir+'/Label_'+img[-5:], pred, cmap=cmap)   
 
-    trees = []
-    builtArea = []
-    crops = []
-    for i in range (len(pixelIntensities)) : 
-        trees.append(pixelIntensities[i][2])
-        builtArea.append(pixelIntensities[i][7])
-        crops.append(pixelIntensities[i][5])
+    # trees = []
+    # builtArea = []
+    # crops = []
+    # for i in range (len(pixelIntensities)) : 
+    #     trees.append(pixelIntensities[i][2])
+    #     builtArea.append(pixelIntensities[i][7])
+    #     crops.append(pixelIntensities[i][5])
     
-    piechartData = pixelIntensities[-1]
+    # piechartData = pixelIntensities[-1]
 
-    strTrees = str(trees)
-    strBuiltArea = str(builtArea)
-    strCrops = str(crops)
-    strpieData = str(piechartData)
+    # strTrees = str(trees)
+    # strBuiltArea = str(builtArea)
+    # strCrops = str(crops)
+    # strpieData = str(piechartData)
 
-    with open("./static/Js/chartdata.js", "w") as file : 
-        file.write("export const histData = "+ strTrees + " ;\n")
-        file.write("export const piechartData = " + strpieData + " ;\n")
-        file.write("export const trees = "+ strTrees + " ;\n")
-        file.write("export const builtArea = "+ strBuiltArea + " ;\n")
-        file.write("export const crops = "+ strCrops + " ;\n")
-        file.close()
+    # with open("./static/Js/chartdata.js", "w") as file : 
+    #     file.write("export const histData = "+ strTrees + " ;\n")
+    #     file.write("export const piechartData = " + strpieData + " ;\n")
+    #     file.write("export const trees = "+ strTrees + " ;\n")
+    #     file.write("export const builtArea = "+ strBuiltArea + " ;\n")
+    #     file.write("export const crops = "+ strCrops + " ;\n")
+    #     file.close()
     
     rgbImages = [imgDir[2:]+'/'+file for file in imgFiles]
     segImages = [labelDir[2:]+'/'+file for file in lblFiles]

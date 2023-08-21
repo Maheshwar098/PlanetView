@@ -1,5 +1,5 @@
-export const histData = [29213, 41752, 39861, 49391, 37532] ;
-export const piechartData = {0: 43856, 1: 20, 2: 37532, 3: 1, 4: 113, 5: 1018, 6: 238, 7: 105787, 8: 4, 9: 0, 10: 73575} ;
-export const trees = [29213, 41752, 39861, 49391, 37532] ;
-export const builtArea = [79767, 78036, 65487, 85797, 105787] ;
-export const crops = [12862, 9508, 13848, 1930, 1018] ;
+export const histData = [1793, 443, 0, 162, 1429] ;
+export const piechartData = {0: 221948, 1: 0, 2: 1429, 3: 0, 4: 0, 5: 16171, 6: 29, 7: 22528, 8: 12, 9: 0, 10: 27} ;
+export const trees = [1793, 443, 0, 162, 1429] ;
+export const builtArea = [17739, 112950, 75292, 99881, 22528] ;
+export const crops = [252, 809, 1789, 16381, 16171] ;

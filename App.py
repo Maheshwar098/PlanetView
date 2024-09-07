@@ -1,146 +1,25 @@
 from flask import Flask, request
 from flask import render_template, send_file
-import sys
-from opencage.geocoder import OpenCageGeocode
-import ee
-# import PIL
 import matplotlib.pyplot as plt
-import PIL
 import numpy as np
-import urllib
 from PIL import Image
-import math
-import tensorflow as tf
-import keras
 import matplotlib.image
 import os
 import matplotlib.colors as mcolors
+from dotenv import load_dotenv
 
+from SatelliteService import SatelliteService
+
+load_dotenv()
 app = Flask(__name__)
+app.config['DEBUG'] = os.getenv('DEBUG', 'False').lower() == 'true'
 
-
-def getCoordinateFromLocation(location):
-    key = 'a4db985ec2094b609d3a7e54619e570e'
-    geocoder = OpenCageGeocode(key)
-    address = location
-
-    try:
-        # no need to URI encode query, module does that for you
-        results = geocoder.geocode(address, no_annotations='1')
-
-        if results and len(results):
-            longitude = results[0]['geometry']['lng']
-            latitude = results[0]['geometry']['lat']
-            return (latitude, longitude)
-        else:
-            sys.stderr.write("not found: %s\n" % address)
-    except IOError:
-        print('Error: File %s does not appear to exist.')
-
-
-def getS2Image(location, size):
-    # ee.Authenticate()
-    ee.Initialize()
-    lattitude = location[0]
-    longitude = location[1]
-    startDates = ['2019-01-01', '2020-01-01',
-                  '2021-01-01', '2022-01-01', '2023-01-01']
-    endDates = ['2019-12-31', '2020-12-31',
-                '2021-12-31', '2022-12-31', '2023-12-31']
-    rgbImages = []
-    for i in range(len(startDates)):
-        try:
-            startDate = startDates[i]
-            endDate = endDates[i]
-            point = ee.Geometry.Point(longitude, lattitude)
-            collection = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
-                .filterBounds(point) \
-                .filterDate(startDate, endDate)\
-                .sort('CLOUDY_PIXEL_PERCENTAGE')
-
-            # Select the first image in the collection
-            image = collection.first()
-
-            # Clip the image to a 510x510 pixel area around the specified location
-            image = image.clip(point.buffer(size / 2).bounds())
-
-            # print(point.buffer(size/2).bounds())
-            s2VisParams = {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 3000}
-
-            url = image.getThumbUrl(s2VisParams)
-
-            image_content = np.array(
-                PIL.Image.open(urllib.request.urlopen(url)))
-            resizedImg = resizeImage(512, image_content)
-            rgbImages.append(resizedImg)
-            img = Image.fromarray(resizedImg[:, :, :3])
-
-            img.save(
-                './static/Images/ModelImages/RGBImages/RGBImg_{}.jpg'.format(i+1))
-
-        finally:
-            pass
-
-    return (rgbImages)
-
-
-def resizeImage(target_dims, img):
-    act_dim = target_dims
-    rows = img.shape[0]
-    columns = img.shape[1]
-
-    row_margin = rows-act_dim
-    col_margin = columns-act_dim
-    img_arr = np.zeros((act_dim, act_dim, 3))
-    if (rows > act_dim):
-        if (columns > act_dim):
-            img_arr = img[:-row_margin, :-col_margin]
-        else:
-            temp = img[:-row_margin, :]
-            img_arr = np.pad(temp, ((0, 0), (math.floor(
-                (act_dim-columns)/2), math.ceil((act_dim-columns)/2)), (0, 0)), mode='constant')
-    else:
-        if (columns > act_dim):
-            temp = img[:, :-col_margin]
-            img_arr = np.pad(temp, ((math.floor(
-                (act_dim-rows)/2), math.ceil((act_dim-rows)/2)), (0, 0), (0, 0)), mode='constant')
-        else:
-            img_arr = np.pad(img, ((math.floor((act_dim-rows)/2), math.ceil((act_dim-rows)/2)),
-                             (math.floor((act_dim-columns)/2), math.ceil((act_dim-columns)/2)), (0, 0)), mode='constant')
-    return img_arr
-
-
-def getRGBImg(imgArr):
-    colors = [
-        [0, 0, 0],          # 0: unmarked : black
-        [0, 0, 255],        # 1: Water : blue
-        [0, 255, 0],        # 2: Trees : green
-        [255, 0, 0],        # 3: Grass : Red
-        [255, 255, 0],      # 4: Flooded Vegetation : yellow
-        [255, 0, 255],      # 5: Crops : purple
-        [192, 192, 192],    # 6: Scrub : gray
-        [128, 0, 0],        # 7: Built Area :  maroon
-        [128, 128, 0],      # 8: Bare Ground :  olive
-        [128, 128, 128],    # 9: Snow/Ice : gray
-        [0, 128, 128]       # 10: Cloud : teal
-    ]
-    img = np.zeros((512, 512, 3))
-    for i in range(11):
-        img[imgArr == i] = colors[i]
-    return img
-
-# 0: unmarked
-# 1: Water
-# 2: Trees
-# 3: Grass
-# 4: Flooded Vegetation
-# 5: Crops
-# 6: Scrub
-# 7: Built Area
-# 8: Bare Ground
-# 9: Snow/Ice
-# 10: Cloud
-
+satServe = SatelliteService(model_path = os.getenv('MODEL_PATH'),
+                            ocg_key = os.getenv('OCG_KEY'),
+                            gcp_service_account=os.getenv('GCP_SERVICE_ACCOUNT'),
+                            gcp_service_key_path=os.getenv('GCP_SERVICE_KEY_PATH'),
+                            save_dir=os.getenv('SAVE_DIR'),
+                            verbose=app.config['DEBUG'])
 
 @app.get("/")
 def hello_world():
@@ -172,9 +51,7 @@ def getCharts():
         # for i in range (512):
         #     for j in range (512) :
         #         pixelCount[imgArr[i,j]] = pixelCount[imgArr[i,j]] + 1
-
         # pixelIntensities.append(pixelCount)
-
     # print(pixelIntensities)
 
     return render_template("charts.html")
@@ -183,8 +60,8 @@ def getCharts():
 @app.route("/getImage", methods=['GET'])
 def getImage():
     location = request.args.get('location')
-    (lattitude, longitude) = getCoordinateFromLocation(location)
-    inputImgs = getS2Image((lattitude, longitude), 5100)
+    (lattitude, longitude) = satServe.getCoordinateFromLocation(location)
+    inputImgs = satServe.getS2Image((lattitude, longitude), 5100)
 
     imgDir = './static/Images/ModelImages/RGBImages'
     labelDir = './static/Images/ModelImages/Labels'
@@ -192,14 +69,10 @@ def getImage():
     lblFiles = os.listdir(labelDir)
 
     pixelIntensities = []
-    reconstructed_model = keras.models.load_model(
-        "./Model/model_3cls_74acc")
 
     for img in imgFiles:
         inputImg = np.asarray(Image.open(imgDir+'/'+img))
-        pred = reconstructed_model.predict(
-            inputImg.reshape(1, 512, 512, 3)).reshape(512, 512, 11)
-        pred = np.array(np.argmax(pred, axis=2))
+        pred = satServe.inference(inputImg)
         pixelCount = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0,
                       5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0}
         for i in range(512):
@@ -227,13 +100,10 @@ def getImage():
                             for row in predLst]).astype(np.uint8)
 
         # num_colors = 11
-
         # # Get the "viridis" colormap
         # colormap = plt.cm.get_cmap('viridis')
-
         # # Generate a list of colors from the colormap
         # colors = [colormap(i / num_colors) for i in range(num_colors)]
-
         # # Create a custom colormap with the specified colors
         # cmap = mcolors.ListedColormap(colors)
 
@@ -273,14 +143,8 @@ def upload():
     if request.method == 'POST':
         image = request.files['image']
         image.save('./static/uploads/rgbimg.jpg')
-        reconstructed_model = keras.models.load_model(
-            "./Model/model_3cls_74acc")
         inputImg = np.asarray(Image.open('./static/uploads/rgbimg.jpg'))
-
-        pred = reconstructed_model.predict(
-            inputImg.reshape(1, 512, 512, 3)).reshape(512, 512, 11)
-        pred = np.array(np.argmax(pred, axis=2))
-
+        pred = satServe.inference(inputImg)
         predLst = list(pred)
 
         palette = {
@@ -300,13 +164,10 @@ def upload():
         colorImg = np.array([[palette[pixel] for pixel in row] for row in predLst]).astype(np.uint8)
 
         # num_colors = 11
-
         # # Get the "viridis" colormap
         # colormap = plt.cm.get_cmap('viridis')
-
         # # Generate a list of colors from the colormap
         # colors = [colormap(i / num_colors) for i in range(num_colors)]
-
         # # Create a custom colormap with the specified colors
         # cmap = mcolors.ListedColormap(colors)
 
@@ -338,9 +199,6 @@ def getsatelliteSceneBin():
 def getsatelliteSceneBasecolor():
     image_path = "./static/assets/satellite/textures/lambert1_baseColor.png"
     return send_file(image_path, as_attachment=True)
-
-#
-
 
 @app.route("/assets/satellite/textures/lambert1_metallicRoughness.png", methods=['GET'])
 def getsatelliteMetallicRough():

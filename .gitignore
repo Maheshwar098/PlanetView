@@ -1,4 +1,9 @@
 .venv/
+venv
+.vscode
 __pycache__
 *.jpg
 *.pyc
+.env
+test.ipynb
+credentials

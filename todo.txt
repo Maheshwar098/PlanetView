@@ -1,0 +1,4 @@
+1. Improving accuract
+2. Code refactoring
+3. Github 
+4. Deployment

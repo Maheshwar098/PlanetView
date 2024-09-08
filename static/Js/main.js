@@ -84,8 +84,8 @@ function animate() {
   group.rotation.y = 0.5*mouse.x
   group.rotation.x = 0.5*mouse.y
   if(satellite){
-    satellite.scene.rotation.z += 0.05
-    satellite.scene.rotation.z += 0.05
+    satellite.scene.rotation.z += 0.005
+    satellite.scene.rotation.z += 0.005
   }
 }
 
